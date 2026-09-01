@@ -2,6 +2,8 @@
 
 [![hexlet-check](https://github.com/kadashee/frontend-project-12/actions/workflows/hexlet-check.yml/badge.svg)](https://github.com/kadashee/frontend-project-12/actions)
 
+[Задеплоенное приложение](https://frontend-project-12-06yz.onrender.com/)
+
 Напишите real-time приложение на React/Redux, используя AJAX, REST, websockets, React (с хуками) + Redux (@reduxjs/toolkit) + Formik
 
 Учебный проект Хекслета: https://ru.hexlet.io/programs/frontend
