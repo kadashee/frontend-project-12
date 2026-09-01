@@ -1,6 +1,13 @@
 import { useForm } from '@mantine/form'
+import axios from 'axios'
+import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import useAuth from '../hooks/useAuth.js'
 
 function LoginPage() {
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const navigate = useNavigate()
+  const { logIn } = useAuth()
   const form = useForm({
     mode: 'uncontrolled',
     initialValues: {
@@ -8,6 +15,28 @@ function LoginPage() {
       password: '',
     },
   })
+
+  const handleSubmit = async (values) => {
+    form.clearErrors()
+    setIsSubmitting(true)
+
+    try {
+      const { data } = await axios.post('/api/v1/login', values)
+      logIn(data.token)
+      navigate('/', { replace: true })
+    } catch (error) {
+      const message =
+        axios.isAxiosError(error) && error.response?.status === 401
+          ? 'Неверные имя пользователя или пароль'
+          : 'Не удалось связаться с сервером. Попробуйте ещё раз'
+
+      form.setFieldError('password', message)
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  const passwordError = form.errors.password
 
   return (
     <section className="login-page page-enter" aria-labelledby="login-title">
@@ -38,7 +67,7 @@ function LoginPage() {
 
         <form
           className="auth-form"
-          onSubmit={form.onSubmit(() => undefined)}
+          onSubmit={form.onSubmit(handleSubmit)}
         >
           <div className="form-field">
             <label htmlFor="username">Имя пользователя</label>
@@ -48,9 +77,10 @@ function LoginPage() {
               type="text"
               autoComplete="username"
               placeholder="Введите ваше имя"
+              disabled={isSubmitting}
               required
               key={form.key('username')}
-              {...form.getInputProps('username')}
+              {...form.getInputProps('username', { withError: false })}
             />
           </div>
 
@@ -62,20 +92,33 @@ function LoginPage() {
               type="password"
               autoComplete="current-password"
               placeholder="Введите пароль"
+              aria-describedby={passwordError ? 'password-error' : undefined}
+              aria-invalid={Boolean(passwordError)}
+              disabled={isSubmitting}
               required
               key={form.key('password')}
-              {...form.getInputProps('password')}
+              {...form.getInputProps('password', { withError: false })}
             />
+            {passwordError && (
+              <p className="form-error" id="password-error" role="alert">
+                {passwordError}
+              </p>
+            )}
           </div>
 
-          <button className="submit-button" type="submit">
-            Войти
+          <button
+            className="submit-button"
+            type="submit"
+            disabled={isSubmitting}
+            aria-busy={isSubmitting}
+          >
+            {isSubmitting ? 'Входим…' : 'Войти'}
             <span aria-hidden="true">→</span>
           </button>
         </form>
 
         <p className="form-note">
-          Отправка данных будет подключена на следующем этапе.
+          Данные передаются серверу по защищённому маршруту авторизации.
         </p>
       </div>
     </section>

@@ -429,6 +429,26 @@ h1 {
   box-shadow: 0 0 0 4px rgba(116, 71, 245, 0.12);
 }
 
+.form-field input[aria-invalid='true'] {
+  border-color: #c43852;
+  background: #fff8f8;
+  box-shadow: 0 0 0 4px rgba(196, 56, 82, 0.08);
+}
+
+.form-field input:disabled {
+  color: #8d8790;
+  background: #efede8;
+  cursor: wait;
+}
+
+.form-error {
+  margin: -2px 0 0;
+  color: #a51f39;
+  font-size: 0.78rem;
+  font-weight: 650;
+  line-height: 1.4;
+}
+
 .submit-button {
   min-height: 54px;
   margin-top: 6px;
@@ -448,6 +468,12 @@ h1 {
 .submit-button:hover {
   background: var(--accent-dark);
   transform: translateY(-1px);
+}
+
+.submit-button:disabled {
+  opacity: 0.68;
+  cursor: wait;
+  transform: none;
 }
 
 .form-note {
