@@ -24,3 +24,29 @@ export const createMessage = async (token, message) => {
   )
   return data
 }
+
+export const createChannel = async (token, channel) => {
+  const { data } = await axios.post(
+    '/api/v1/channels',
+    channel,
+    getAuthConfig(token),
+  )
+  return data
+}
+
+export const renameChannel = async (token, channelId, channel) => {
+  const { data } = await axios.patch(
+    `/api/v1/channels/${channelId}`,
+    channel,
+    getAuthConfig(token),
+  )
+  return data
+}
+
+export const removeChannel = async (token, channelId) => {
+  const { data } = await axios.delete(
+    `/api/v1/channels/${channelId}`,
+    getAuthConfig(token),
+  )
+  return data
+}

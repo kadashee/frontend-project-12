@@ -40,11 +40,42 @@ const useChatData = () => {
         message,
       ])
     }
+    const handleNewChannel = (channel) => {
+      queryClient.setQueryData(['channels', token], (cachedChannels = []) => [
+        ...cachedChannels,
+        channel,
+      ])
+    }
+    const handleRenameChannel = (renamedChannel) => {
+      queryClient.setQueryData(['channels', token], (cachedChannels = []) =>
+        cachedChannels.map((channel) =>
+          String(channel.id) === String(renamedChannel.id)
+            ? renamedChannel
+            : channel,
+        ),
+      )
+    }
+    const handleRemoveChannel = ({ id }) => {
+      queryClient.setQueryData(['channels', token], (cachedChannels = []) =>
+        cachedChannels.filter((channel) => String(channel.id) !== String(id)),
+      )
+      queryClient.setQueryData(['messages', token], (cachedMessages = []) =>
+        cachedMessages.filter(
+          (message) => String(message.channelId) !== String(id),
+        ),
+      )
+    }
 
     socket.on('newMessage', handleNewMessage)
+    socket.on('newChannel', handleNewChannel)
+    socket.on('renameChannel', handleRenameChannel)
+    socket.on('removeChannel', handleRemoveChannel)
 
     return () => {
       socket.off('newMessage', handleNewMessage)
+      socket.off('newChannel', handleNewChannel)
+      socket.off('renameChannel', handleRenameChannel)
+      socket.off('removeChannel', handleRemoveChannel)
       socket.disconnect()
     }
   }, [queryClient, token])
