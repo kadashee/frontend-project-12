@@ -634,3 +634,72 @@ h1 {
     transition-duration: 0.01ms !important;
   }
 }
+
+.chat-data-page,
+.chat-state-page {
+  grid-template-columns: 1fr;
+}
+
+.chat-preview-data {
+  min-height: 520px;
+  grid-template-columns: 220px minmax(0, 1fr);
+  transform: none;
+}
+
+.channels-rail {
+  padding: 28px 16px;
+  align-items: stretch;
+}
+
+.channels-rail > strong {
+  margin: 0 10px 14px;
+}
+
+.channel-link {
+  width: 100%;
+  min-height: 42px;
+  overflow: hidden;
+  border: 0;
+  text-align: left;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.chat-content {
+  min-width: 0;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+}
+
+.messages-list {
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.empty-messages {
+  margin-top: 24px;
+  color: var(--muted);
+}
+
+.message-input-form {
+  padding-top: 24px;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  border-top: 1px solid var(--line);
+}
+
+.message-input-form .submit-button {
+  min-width: 120px;
+  margin: 0;
+}
+
+@media (max-width: 520px) {
+  .chat-preview-data {
+    grid-template-columns: 140px minmax(0, 1fr);
+  }
+
+  .message-input-form {
+    grid-template-columns: 1fr;
+  }
+}

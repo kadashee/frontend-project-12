@@ -1,49 +1,128 @@
-import { Link } from 'react-router-dom'
+import { useEffect } from 'react'
+import useChatData from '../hooks/useChatData.js'
+import useChatUiStore from '../store/useChatUiStore.js'
+
+const EMPTY_LIST = []
 
 function ChatPage() {
-  return (
-    <section className="chat-page page-enter" aria-labelledby="chat-title">
-      <div className="chat-copy">
-        <p className="eyebrow">Real-time пространство</p>
-        <h1 id="chat-title">Разговор начинается здесь.</h1>
-        <p className="lead">
-          Каналы, сообщения и вся команда в одном месте. Авторизуйтесь, чтобы
-          присоединиться к беседе от своего имени.
-        </p>
-        <Link className="primary-link" to="/login">
-          Перейти ко входу
-          <span aria-hidden="true">↗</span>
-        </Link>
-      </div>
+  const {
+    channelsQuery,
+    messagesQuery,
+    isLoading,
+    isError,
+  } = useChatData()
+  const activeChannelId = useChatUiStore((state) => state.activeChannelId)
+  const setActiveChannelId = useChatUiStore(
+    (state) => state.setActiveChannelId,
+  )
 
-      <div className="chat-preview" aria-label="Предпросмотр каналов чата">
-        <div className="preview-rail">
-          <span className="preview-dot preview-dot-accent" />
-          <span className="preview-dot" />
-          <span className="preview-dot" />
+  const channels = channelsQuery.data ?? EMPTY_LIST
+  const messages = messagesQuery.data ?? EMPTY_LIST
+
+  useEffect(() => {
+    const activeChannelExists = channels.some(
+      (channel) => String(channel.id) === String(activeChannelId),
+    )
+
+    if (channels.length > 0 && !activeChannelExists) {
+      setActiveChannelId(channels[0].id)
+    }
+  }, [activeChannelId, channels, setActiveChannelId])
+
+  if (isLoading) {
+    return (
+      <section className="chat-page chat-state-page page-enter">
+        <div className="chat-copy">
+          <p className="eyebrow">Чат</p>
+          <h1>Загрузка…</h1>
         </div>
-        <div className="preview-content">
+      </section>
+    )
+  }
+
+  if (isError) {
+    return (
+      <section className="chat-page chat-state-page page-enter" role="alert">
+        <div className="chat-copy">
+          <h1>Не удалось загрузить чат</h1>
+        </div>
+      </section>
+    )
+  }
+
+  const activeChannel = channels.find(
+    (channel) => String(channel.id) === String(activeChannelId),
+  )
+  const activeMessages = messages.filter(
+    (message) => String(message.channelId) === String(activeChannelId),
+  )
+
+  return (
+    <section className="chat-page chat-data-page page-enter" aria-label="Чат">
+      <div className="chat-preview chat-preview-data">
+        <aside className="preview-rail channels-rail">
+          <strong>Каналы</strong>
+          {channels.map((channel) => {
+            const isActive = String(channel.id) === String(activeChannelId)
+
+            return (
+              <button
+                className={`nav-link channel-link${isActive ? ' nav-link-active' : ''}`}
+                type="button"
+                key={channel.id}
+                onClick={() => setActiveChannelId(channel.id)}
+              >
+                # {channel.name}
+              </button>
+            )
+          })}
+        </aside>
+
+        <div className="preview-content chat-content">
           <div className="preview-heading">
             <div>
               <span className="preview-kicker">Канал</span>
-              <strong># general</strong>
+              <strong># {activeChannel?.name}</strong>
             </div>
-            <span className="online-badge">online</span>
+            <span className="online-badge">
+              {activeMessages.length} сообщений
+            </span>
           </div>
-          <div className="message-row">
-            <span className="avatar avatar-violet">A</span>
-            <div>
-              <strong>admin</strong>
-              <p>Добро пожаловать в Hexlet Chat!</p>
+
+          <div className="messages-list">
+            {activeMessages.map((message) => (
+              <div className="message-row" key={message.id}>
+                <span className="avatar avatar-violet" aria-hidden="true">
+                  {message.username?.charAt(0).toUpperCase() || '?'}
+                </span>
+                <div>
+                  <strong>{message.username}</strong>
+                  <p>{message.body}</p>
+                </div>
+              </div>
+            ))}
+            {activeMessages.length === 0 && (
+              <p className="empty-messages">В канале пока нет сообщений</p>
+            )}
+          </div>
+
+          <form
+            className="auth-form message-input-form"
+            onSubmit={(event) => event.preventDefault()}
+          >
+            <div className="form-field">
+              <label htmlFor="message">Новое сообщение</label>
+              <input
+                id="message"
+                type="text"
+                placeholder={`Сообщение в #${activeChannel?.name ?? ''}`}
+                disabled={!activeChannel}
+              />
             </div>
-          </div>
-          <div className="message-row message-row-muted">
-            <span className="avatar">?</span>
-            <div>
-              <strong>Ваше имя</strong>
-              <p>Войдите, чтобы продолжить разговор…</p>
-            </div>
-          </div>
+            <button className="submit-button" type="submit" disabled={!activeChannel}>
+              Отправить
+            </button>
+          </form>
         </div>
       </div>
     </section>
