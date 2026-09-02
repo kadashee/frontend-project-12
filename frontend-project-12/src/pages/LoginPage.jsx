@@ -22,7 +22,7 @@ function LoginPage() {
 
     try {
       const { data } = await axios.post('/api/v1/login', values)
-      logIn(data.token)
+      logIn(data)
       navigate('/', { replace: true })
     } catch (error) {
       const message =

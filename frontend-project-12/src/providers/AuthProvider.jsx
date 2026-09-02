@@ -2,24 +2,30 @@ import { useCallback, useMemo, useState } from 'react'
 import AuthContext from '../contexts/AuthContext.js'
 
 const TOKEN_KEY = 'token'
+const USERNAME_KEY = 'username'
 
-const getStoredToken = () => localStorage.getItem(TOKEN_KEY)
+const getStoredAuth = () => ({
+  token: localStorage.getItem(TOKEN_KEY),
+  username: localStorage.getItem(USERNAME_KEY),
+})
 
 function AuthProvider({ children }) {
-  const [token, setToken] = useState(getStoredToken)
+  const [auth, setAuth] = useState(getStoredAuth)
 
-  const logIn = useCallback((newToken) => {
-    localStorage.setItem(TOKEN_KEY, newToken)
-    setToken(newToken)
+  const logIn = useCallback(({ token, username }) => {
+    localStorage.setItem(TOKEN_KEY, token)
+    localStorage.setItem(USERNAME_KEY, username)
+    setAuth({ token, username })
   }, [])
 
   const value = useMemo(
     () => ({
-      token,
-      isAuthenticated: Boolean(token),
+      token: auth.token,
+      username: auth.username,
+      isAuthenticated: Boolean(auth.token && auth.username),
       logIn,
     }),
-    [token, logIn],
+    [auth, logIn],
   )
 
   return <AuthContext value={value}>{children}</AuthContext>
