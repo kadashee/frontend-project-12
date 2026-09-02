@@ -18,14 +18,21 @@ function AuthProvider({ children }) {
     setAuth({ token, username })
   }, [])
 
+  const logOut = useCallback(() => {
+    localStorage.removeItem(TOKEN_KEY)
+    localStorage.removeItem(USERNAME_KEY)
+    setAuth({ token: null, username: null })
+  }, [])
+
   const value = useMemo(
     () => ({
       token: auth.token,
       username: auth.username,
       isAuthenticated: Boolean(auth.token && auth.username),
       logIn,
+      logOut,
     }),
-    [auth, logIn],
+    [auth, logIn, logOut],
   )
 
   return <AuthContext value={value}>{children}</AuthContext>

@@ -201,6 +201,11 @@
   text-align: center;
 }
 
+.form-note a {
+  color: var(--accent-dark);
+  font-weight: 700;
+}
+
 .not-found-page {
   padding: 70px 8%;
   display: grid;
@@ -354,4 +359,3 @@
     transition-duration: 0.01ms !important;
   }
 }
-

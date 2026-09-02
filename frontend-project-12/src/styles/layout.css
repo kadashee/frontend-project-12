@@ -68,6 +68,11 @@
   background: var(--surface);
 }
 
+.nav-button {
+  background: transparent;
+  cursor: pointer;
+}
+
 .brand:focus-visible,
 .nav-link:focus-visible,
 .primary-link:focus-visible,
@@ -287,5 +292,4 @@ h1 {
   color: white;
   background: var(--accent);
 }
-
 

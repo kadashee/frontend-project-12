@@ -1,7 +1,8 @@
 import { useForm } from '@mantine/form'
 import axios from 'axios'
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
+import { logInUser } from '../api/authApi.js'
 import useAuth from '../hooks/useAuth.js'
 
 function LoginPage() {
@@ -21,8 +22,8 @@ function LoginPage() {
     setIsSubmitting(true)
 
     try {
-      const { data } = await axios.post('/api/v1/login', values)
-      logIn(data)
+      const auth = await logInUser(values)
+      logIn(auth)
       navigate('/', { replace: true })
     } catch (error) {
       const message =
@@ -118,7 +119,7 @@ function LoginPage() {
         </form>
 
         <p className="form-note">
-          Данные передаются серверу по защищённому маршруту авторизации.
+          Нет аккаунта? <Link to="/signup">Регистрация</Link>
         </p>
       </div>
     </section>
