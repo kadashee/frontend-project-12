@@ -1,5 +1,8 @@
 import { useEffect, useState } from 'react'
-import ChannelModal from '../components/ChannelModal.jsx'
+import ChannelModal from '../components/channels/ChannelModal.jsx'
+import ChannelsSidebar from '../components/channels/ChannelsSidebar.jsx'
+import MessageForm from '../components/messages/MessageForm.jsx'
+import MessageList from '../components/messages/MessageList.jsx'
 import useChatData from '../hooks/useChatData.js'
 import useAuth from '../hooks/useAuth.js'
 import useChatUiStore from '../store/useChatUiStore.js'
@@ -89,70 +92,12 @@ function ChatPage() {
     <>
       <section className="chat-page chat-data-page page-enter" aria-label="Чат">
         <div className="chat-preview chat-preview-data">
-          <aside className="preview-rail channels-rail">
-            <div className="channels-heading">
-              <strong>Каналы</strong>
-              <button
-                className="add-channel-button"
-                type="button"
-                aria-label="Добавить канал"
-                onClick={() => openModal({ type: 'add' })}
-              >
-                +
-              </button>
-            </div>
-
-            <div className="channels-list">
-              {channels.map((channel) => {
-                const isActive = String(channel.id) === String(activeChannelId)
-
-                return (
-                  <div className="channel-item" key={channel.id}>
-                    <button
-                      className={`nav-link channel-link${isActive ? ' nav-link-active' : ''}`}
-                      type="button"
-                      onClick={() => setActiveChannelId(channel.id)}
-                    >
-                      # {channel.name}
-                    </button>
-
-                    {channel.removable && (
-                      <details className="channel-menu">
-                        <summary aria-label={`Управление каналом ${channel.name}`}>
-                          ⋮
-                        </summary>
-                        <div className="channel-menu-content">
-                          <button
-                            type="button"
-                            onClick={(event) => {
-                              event.currentTarget
-                                .closest('details')
-                                ?.removeAttribute('open')
-                              openModal({ type: 'rename', channel })
-                            }}
-                          >
-                            Переименовать
-                          </button>
-                          <button
-                            className="channel-menu-danger"
-                            type="button"
-                            onClick={(event) => {
-                              event.currentTarget
-                                .closest('details')
-                                ?.removeAttribute('open')
-                              openModal({ type: 'remove', channel })
-                            }}
-                          >
-                            Удалить
-                          </button>
-                        </div>
-                      </details>
-                    )}
-                  </div>
-                )
-              })}
-            </div>
-          </aside>
+          <ChannelsSidebar
+            channels={channels}
+            activeChannelId={activeChannelId}
+            onSelectChannel={setActiveChannelId}
+            onOpenModal={openModal}
+          />
 
           <div className="preview-content chat-content">
             <div className="preview-heading">
@@ -165,65 +110,20 @@ function ChatPage() {
               </span>
             </div>
 
-            <div className="messages-list">
-              {activeMessages.map((message) => (
-                <div className="message-row" key={message.id}>
-                  <span className="avatar avatar-violet" aria-hidden="true">
-                    {message.username?.charAt(0).toUpperCase() || '?'}
-                  </span>
-                  <div>
-                    <strong>{message.username}</strong>
-                    <p>{message.body}</p>
-                  </div>
-                </div>
-              ))}
-              {activeMessages.length === 0 && (
-                <p className="empty-messages">В канале пока нет сообщений</p>
-              )}
-            </div>
-
-            <form
-              className="auth-form message-input-form"
+            <MessageList messages={activeMessages} />
+            <MessageForm
+              channel={activeChannel}
+              value={messageBody}
+              isPending={messageMutation.isPending}
+              isError={messageMutation.isError}
               onSubmit={handleMessageSubmit}
-            >
-              <div className="form-field">
-                <label htmlFor="message">Новое сообщение</label>
-                <input
-                  id="message"
-                  name="message"
-                  type="text"
-                  placeholder={`Сообщение в #${activeChannel?.name ?? ''}`}
-                  value={messageBody}
-                  aria-describedby={messageMutation.isError ? 'message-error' : undefined}
-                  aria-invalid={messageMutation.isError}
-                  disabled={!activeChannel || messageMutation.isPending}
-                  onChange={(event) => {
-                    setMessageBody(event.target.value)
-                    if (messageMutation.isError) {
-                      messageMutation.reset()
-                    }
-                  }}
-                />
-                {messageMutation.isError && (
-                  <p className="form-error" id="message-error" role="alert">
-                    Не удалось отправить сообщение. Проверьте соединение и
-                    попробуйте снова.
-                  </p>
-                )}
-              </div>
-              <button
-                className="submit-button"
-                type="submit"
-                disabled={
-                  !activeChannel ||
-                  !messageBody.trim() ||
-                  messageMutation.isPending
+              onChange={(event) => {
+                setMessageBody(event.target.value)
+                if (messageMutation.isError) {
+                  messageMutation.reset()
                 }
-                aria-busy={messageMutation.isPending}
-              >
-                {messageMutation.isPending ? 'Отправляем…' : 'Отправить'}
-              </button>
-            </form>
+              }}
+            />
           </div>
         </div>
       </section>

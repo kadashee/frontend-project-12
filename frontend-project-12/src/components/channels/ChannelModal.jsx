@@ -5,9 +5,9 @@ import {
   createChannel,
   removeChannel,
   renameChannel,
-} from '../api/chatApi.js'
-import useAuth from '../hooks/useAuth.js'
-import useChatUiStore from '../store/useChatUiStore.js'
+} from '../../api/chatApi.js'
+import useAuth from '../../hooks/useAuth.js'
+import useChatUiStore from '../../store/useChatUiStore.js'
 
 const validateNameLength = hasLength(
   { min: 3, max: 20 },
